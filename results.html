@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="results-section">
+    <h2>Analysis Results</h2>
+    
+    <div class="image-comparison">
+        <div class="image-box">
+            <h3>Original Image</h3>
+            <img src="{{ url_for('static', filename='uploads/' + original) }}" alt="Original Image">
+        </div>
+        <div class="image-box">
+            <h3>Processed Image</h3>
+            <img src="{{ url_for('static', filename='uploads/' + processed) }}" alt="Processed Image">
+        </div>
+    </div>
+    
+    <div class="results-summary">
+        <h3>Detection Summary</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fruit Type</th>
+                    <th>Count</th>
+                    <th>Average Confidence</th>
+                    <th>Ripeness Distribution</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fruit, count in fruit_counts.items() %}
+                <tr>
+                    <td>{{ fruit }}</td>
+                    <td>{{ count }}</td>
+                    <td>
+                        {% set confidences = fruit_data|selectattr('type', 'equalto', fruit)|map(attribute='confidence')|list %}
+                        {{ "%.2f"|format((confidences|sum / confidences|length) * 100) }}%
+                    </td>
+                    <td>
+                        {% set ripeness_counts = {'Ripe': 0, 'Unripe': 0, 'Intermediate': 0} %}
+                        {% for fd in fruit_data %}
+                            {% if fd['type'] == fruit %}
+                                {% set _ = ripeness_counts.update({fd['ripeness']: ripeness_counts[fd['ripeness']] + 1}) %}
+                            {% endif %}
+                        {% endfor %}
+                        Ripe: {{ ripeness_counts['Ripe'] }}, 
+                        Unripe: {{ ripeness_counts['Unripe'] }}, 
+                        Intermediate: {{ ripeness_counts['Intermediate'] }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <a href="{{ url_for('index') }}" class="back-button">Analyze Another Image</a>
+</section>
+{% endblock %}

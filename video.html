@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="video-processing">
+    <h2>Video Processing</h2>
+    
+    <div class="video-container">
+        <video controls>
+            <source src="{{ url_for('static', filename='uploads/' + video_file) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    
+    <div class="processing-controls">
+        <button id="process-btn">Process Video</button>
+        <div id="status-message"></div>
+    </div>
+    
+    <div id="processed-video" style="display: none;">
+        <h3>Processed Results</h3>
+        <video controls>
+            <source id="processed-source" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</section>
+
+<script>
+document.getElementById('process-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('process-btn');
+    const status = document.getElementById('status-message');
+    btn.disabled = true;
+    status.textContent = "Processing video... This may take some time.";
+    
+    try {
+        const response = await fetch('/process_video', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `video_file={{ video_file }}`
+        });
+        
+        const data = await response.json();
+        if (data.status === 'completed') {
+            const processedVideo = document.getElementById('processed-video');
+            const processedSource = document.getElementById('processed-source');
+            processedSource.src = "{{ url_for('static', filename='uploads/') }}" + data.processed_video;
+            processedVideo.style.display = 'block';
+            status.textContent = "Processing complete!";
+        }
+    } catch (error) {
+        status.textContent = "Error processing video: " + error.message;
+    } finally {
+        btn.disabled = false;
+    }
+});
+</script>
+
+<style>
+.video-container, #processed-video {
+    margin: 20px 0;
+    text-align: center;
+}
+video {
+    max-width: 100%;
+    max-height: 500px;
+}
+.processing-controls {
+    text-align: center;
+    margin: 20px 0;
+}
+#process-btn {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+#process-btn:disabled {
+    background-color: #cccccc;
+}
+#status-message {
+    margin-top: 10px;
+    color: #666;
+}
+</style>
+{% endblock %}

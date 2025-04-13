@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section id="image-upload">
+    <h2>Image Analysis</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="upload-container">
+            <input type="file" name="file" id="file-upload" accept="image/*" required>
+            <label for="file-upload" class="upload-label">
+                <span>Choose an image file</span>
+                <div class="upload-icon">📁</div>
+            </label>
+            <button type="submit">Analyze</button>
+        </div>
+    </form>
+</section>
+
+<section id="video">
+    <h2>Video Analysis</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="upload-container">
+            <input type="file" name="file" id="video-upload" accept="video/*" required>
+            <label for="video-upload" class="upload-label">
+                <span>Choose a video file</span>
+                <div class="upload-icon">🎥</div>
+            </label>
+            <button type="submit">Process Video</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
